@@ -835,6 +835,21 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
       });
       host.onError = loadErrorCallback;
       this.player_ = new cast.player.api.Player(host);
+      host.onManifestReady = function(){
+        console.log("onManifestReady");
+        console.log("streamCount: " + this.player_.getStreamingProtocol().getStreamCount());
+        for (var i = 0; i < this.player_.getStreamingProtocol().getStreamCount(); i++) {
+          console.log("stream: " + i + " is enabled: " + this.player_.getStreamingProtocol().isStreamEnabled(i));
+          console.log("stream: " + i + " information: " + this.player_.getStreamingProtocol().getStreamInfo(i).codecs);
+          if (this.player_.getStreamingProtocol().getStreamInfo(i).codecs.indexOf("hev1") > -1 )
+          {
+            this.player_.getStreamingProtocol().enableStream(i, true);
+          } else if (this.player_.getStreamingProtocol().getStreamInfo(i).codecs.indexOf("avc1") > -1) {
+            this.player_.getStreamingProtocol().enableStream(i, false);
+          }
+        }
+      }.bind(this);
+
       this.player_.load(protocolFunc(host));
     } else {
       this.log_('Preloaded video load');
