@@ -79,7 +79,7 @@ sampleplayer.CastPlayer = function(element) {
    * The debug setting to control receiver, MPL and player logging.
    * @private {boolean}
    */
-  this.debug_ = sampleplayer.DISABLE_DEBUG_;
+  this.debug_ = sampleplayer.ENABLE_DEBUG_;
   if (this.debug_) {
     cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.DEBUG);
     cast.receiver.logger.setLevelValue(cast.receiver.LoggerLevel.DEBUG);
@@ -588,9 +588,11 @@ sampleplayer.CastPlayer.prototype.preloadVideo_ = function(mediaInformation) {
     return false;
   }
   var host = new cast.player.api.Host({
-    'url': url,
-    'mediaElement': self.mediaElement_
+    'url': "https://d1sejb9rba1296.cloudfront.net/MEZ9900000101/dash/MEZ9000000101_500_1000_1500_2500_4000_wvonly.mpd",
+    'mediaElement': self.mediaElement_,
+    'licenseUrl' : "https://coredevpub.unext-info.jp/62564fba-746b-4c35-896a-2b66ff188797?play_token=92929838723"
   });
+  // host.licenseUrl = "https://coredevpub.unext-info.jp/62564fba-746b-4c35-896a-2b66ff188797?play_token=92929838723"
   host.onError = function() {
     self.preloadPlayer_.unload();
     self.preloadPlayer_ = null;
@@ -598,6 +600,7 @@ sampleplayer.CastPlayer.prototype.preloadVideo_ = function(mediaInformation) {
     self.displayPreviewMode_ = false;
     self.log_('Error during preload');
   };
+  console.log("wxie debug: " + host.segmentRequestRetryLimit);
   self.preloadPlayer_ = new cast.player.api.Player(host);
   self.preloadPlayer_.preload(protocolFunc(host));
   return true;
@@ -831,7 +834,8 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
       this.log_('Regular video load');
       var host = new cast.player.api.Host({
         'url': url,
-        'mediaElement': this.mediaElement_
+        'mediaElement': this.mediaElement_,
+        'licenseUrl' : "https://coredevpub.unext-info.jp/62564fba-746b-4c35-896a-2b66ff188797?play_token=92929838723"
       });
       host.onError = loadErrorCallback;
       this.player_ = new cast.player.api.Player(host);
@@ -1748,7 +1752,8 @@ sampleplayer.getProtocolFunction_ = function(mediaInformation) {
           type === 'application/vnd.ms-sstr+xml') {
     return cast.player.api.CreateSmoothStreamingProtocol;
   }
-  return null;
+  console.log("dash streaming test");
+  return cast.player.api.CreateDashStreamingProtocol;
 };
 
 
