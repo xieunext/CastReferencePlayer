@@ -407,7 +407,7 @@ sampleplayer.State = {
  *
  * @type {number}
  */
-sampleplayer.BURN_IN_TIMEOUT = 30 * 1000;
+sampleplayer.BURN_IN_TIMEOUT = 300 * 1000;
 
 /**
  * The minimum duration (in ms) that media info is displayed.
@@ -717,8 +717,8 @@ sampleplayer.CastPlayer.prototype.loadMetadata_ = function(media) {
     var titleElement = this.element_.querySelector('.media-title');
     sampleplayer.setInnerText_(titleElement, metadata.title);
 
-    var subtitleElement = this.element_.querySelector('.media-subtitle');
-    sampleplayer.setInnerText_(subtitleElement, metadata.subtitle);
+    // var subtitleElement = this.element_.querySelector('.media-subtitle');
+    // sampleplayer.setInnerText_(subtitleElement, metadata.subtitle);
 
     var artwork = sampleplayer.getMediaImageUrl_(media);
     if (artwork) {
@@ -835,20 +835,43 @@ sampleplayer.CastPlayer.prototype.loadVideo_ = function(info) {
       });
       host.onError = loadErrorCallback;
       this.player_ = new cast.player.api.Player(host);
-      host.onManifestReady = function(){
-        console.log("onManifestReady");
-        console.log("streamCount: " + this.player_.getStreamingProtocol().getStreamCount());
-        for (var i = 0; i < this.player_.getStreamingProtocol().getStreamCount(); i++) {
-          console.log("stream: " + i + " is enabled: " + this.player_.getStreamingProtocol().isStreamEnabled(i));
-          console.log("stream: " + i + " information: " + this.player_.getStreamingProtocol().getStreamInfo(i).codecs);
-          if (this.player_.getStreamingProtocol().getStreamInfo(i).codecs.indexOf("hev1") > -1 )
-          {
-            this.player_.getStreamingProtocol().enableStream(i, true);
-          } else if (this.player_.getStreamingProtocol().getStreamInfo(i).codecs.indexOf("avc1") > -1) {
-            this.player_.getStreamingProtocol().enableStream(i, false);
-          }
-        }
-      }.bind(this);
+      // host.onManifestReady = function(){
+      //   console.log("onManifestReady");
+      //   console.log("streamCount: " + this.player_.getStreamingProtocol().getStreamCount());
+      //   for (var i = 0; i < this.player_.getStreamingProtocol().getStreamCount(); i++) {
+      //     console.log("stream: " + i + " is enabled: " + this.player_.getStreamingProtocol().isStreamEnabled(i));
+      //     console.log("stream: " + i + " information: " + this.player_.getStreamingProtocol().getStreamInfo(i).codecs);
+      //     if (this.player_.getStreamingProtocol().getStreamInfo(i).codecs.indexOf("hev1") > -1 )
+      //     {
+      //       this.player_.getStreamingProtocol().enableStream(i, true);
+      //     } else if (this.player_.getStreamingProtocol().getStreamInfo(i).codecs.indexOf("avc1") > -1) {
+      //       this.player_.getStreamingProtocol().enableStream(i, false);
+      //     }
+      //   }
+      // }.bind(this);
+
+      var subtitleElement = this.element_.querySelector('.media-subtitle');
+      // var deviceCapabilities = window.cast.receiver.CastReceiverManager.getInstance().getDeviceCapabilities();
+      // var cpb = '';
+      //   if (deviceCapabilities) {
+      //     for (var property in deviceCapabilities) {
+      //       if (deviceCapabilities.hasOwnProperty(property)) {
+      //         cpb = cpb + property+ ":" + deviceCapabilities[property] + ", " ;
+      //         // log = property+ ":" + deviceCapabilities[property];
+      //       }
+      //     }
+      //   }
+      var message='';
+      var video = document.getElementById('videoplayer');
+      var result = video.canPlayType('video/mp4; codecs="hev1.1.6.L153"');
+      if (result == '') {
+        result = 'false';
+      }
+      message = message +  'video/mp4; codecs="hev1.1.6.L153" is supported: ' + result;
+      var useragent = navigator.userAgent;
+      message = message + ". useragent: " + useragent;
+
+      subtitleElement.innerText = message;
 
       this.player_.load(protocolFunc(host));
     } else {
@@ -2115,6 +2138,11 @@ sampleplayer.isCastForAudioDevice_ = function() {
   if (receiverManager) {
     var deviceCapabilities = receiverManager.getDeviceCapabilities();
     if (deviceCapabilities) {
+      for (var property in deviceCapabilities) {
+        if (deviceCapabilities.hasOwnProperty(property)) {
+          console.log(property+ ":" + deviceCapabilities[property]);
+        }
+      }
       return deviceCapabilities['display_supported'] === false;
     }
   }
